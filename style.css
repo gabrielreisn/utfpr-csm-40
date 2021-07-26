@@ -1,0 +1,23 @@
+#menu {
+    position: sticky;
+    
+   
+}
+
+span {
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    margin-right: 5px;
+    padding-right: 5px;
+    text-align: center;
+    padding-left: 5px;
+    
+    
+}
+
+#info {
+    padding: 15px;
+}
+
+
+
