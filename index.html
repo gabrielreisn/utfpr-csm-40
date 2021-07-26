@@ -5,15 +5,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="style.css">
   <script src="url.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript" src="charts.js"></script>
   <script type="text/javascript" src="Table.view.js"></script>
+  
 
 </head>
 <body>
-
-  <span>Data inicial</span>
+  <div id="menu">
+  <span >Data inicial</span>
   <input id="data_inicial_cotacao" type="date" autofocus>
 
   <span>Data final</span>
@@ -27,7 +29,11 @@
   </datalist>
 
   <button id="botao_cotacao"> Cotar</button>
+  <span id="menu_sobre">Sobre</span>
+  <span id="menu_ajuda">Ajuda</span>
+</div>
 
+  <div id="info"></div>
   <div id="curve_chart" style="width: 900px; height: 500px"></div>
   <div id="tabela"></div>
 
@@ -57,6 +63,9 @@
         .replace("simbolo_moeda", moeda)
         .replace("cotacao_final", data_final_convertida)
         .replace("cotacao_inicial", data_inicial_convertida)
+
+      allHidden(); // limpando as divs
+      showData(); // mostrando tabela e grafico
       
       fetchExchangeRate(url)
     }
@@ -68,6 +77,8 @@
       const dadosFiltrados = convertToCharts(dados.value)
       drawCharts(dadosFiltrados)
       drawTable("tabela", dadosFiltrados)
+      
+
     }
 
     const drawCharts = (dados) => {
@@ -81,9 +92,52 @@
       tabela.draw(tagId);
     }
 
+    // Funções para gerar conteudo em info
+
+    function divAjuda() {
+      allHidden();
+      let evento = document.getElementById("info");
+      evento.innerHTML="";
+      evento.innerHTML = "AJUDA: Sed egestas egestas fringilla phasellus faucibus scelerisque.";
+      evento.style.display = "initial";
+    }
+
+    function divSobre() {
+      allHidden();
+      let evento = document.getElementById("info");
+      evento.innerHTML="";
+      evento.innerHTML = "SOBRE: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
+      evento.style.display= "initial";
+    }
+
+    // Funções de "ativação" das divs
+
+      function allHidden()
+    {
+      document.getElementById("info").style.display = "none";
+      document.getElementById("curve_chart").style.visibility = "hidden";
+      document.getElementById("tabela").style.visibility = "hidden";
+    }
+
+    function showData()
+    {
+      document.getElementById("curve_chart").style.visibility = "visible";
+      document.getElementById("tabela").style.visibility = "visible";
+    }
+
     // Adiciona um evento, funcao que sera executada, ao clicar no botão. 
     const botao_cotacao = document.getElementById("botao_cotacao")
-    botao_cotacao.addEventListener("click", initializeFetch) 
+    botao_cotacao.addEventListener("click", initializeFetch)
+
+    //Evento SOBRE e AJUDA
+
+    const evento_sobre = document.getElementById("menu_sobre")
+    evento_sobre.addEventListener("click", divSobre)
+
+    const evento_ajuda = document.getElementById("menu_ajuda")
+    evento_ajuda.addEventListener("click", divAjuda)
+
+ 
 
   </script>
 </body>
