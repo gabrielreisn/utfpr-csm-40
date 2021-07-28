@@ -1,11 +1,20 @@
 class Table{
 
   constructor(){
+
+    // remove tabela anterior se existir
+    const node = document.querySelector("#tabela > table")
+    if(node) node.remove()
+
     this.tabela = null
     this.head = null
     this.body = null
+    this.columnsName = null
+  }
 
-    this.initialize()
+  setColumnsName(headers){
+    this.columnsName = headers
+    return this
   }
   
   initialize(){
@@ -16,27 +25,32 @@ class Table{
   }
 
   draw(idWhere){
-    const idTag = document.getElementById(idWhere);
+    const idTag = document.getElementById(idWhere)
     idTag.appendChild(this.tabela)
   }
   
   getTabela(){
-    return this.tabela;
+    return this.tabela
   }
 
   setTabela(){
-    this.tabela = document.createElement('table');
-    return this;
+    this.tabela = document.createElement('table')
+    return this
+  }
+
+  _construirHead(row){
+    for(const iterator in this.columnsName){
+      row.insertCell(iterator).innerHTML = this.columnsName[iterator]
+    }
   }
 
   construirHead(){
     const tabela = this.tabela;
     const thead = tabela.createTHead()
     const rowTHead = thead.insertRow(0)
-    rowTHead.insertCell(0).innerHTML = "Data"
-    rowTHead.insertCell(1).innerHTML = "Cotação"
-    this.head = thead;
-    return this;
+    this._construirHead(rowTHead)
+    this.head = thead
+    return this
   }
 
   construirBody(){
@@ -46,7 +60,7 @@ class Table{
     return this;
   }
 
-  insertRow(dados){
+  insertRowAtBody(dados){
     const body = this.body
     const rowBody = body.insertRow()
     for (const iterator in dados)
@@ -55,8 +69,9 @@ class Table{
   }
 
   setDadosAtBody(matriz){
+    this.initialize()
     for (const vetor of matriz)
-      this.insertRow(vetor)
+      this.insertRowAtBody(vetor)
     return this;
   }
 }

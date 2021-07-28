@@ -5,94 +5,38 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="url.js"></script>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script type="text/javascript" src="charts.js"></script>
-  <script type="text/javascript" src="Table.view.js"></script>
-  
-
+  <script type="text/javascript" src="libs/google.charts.js"></script>
+  <script type="text/javascript" src="view/Table.view.js"></script>
+  <script type="text/javascript" src="view/Charts.view.js"></script>
+  <script type="text/javascript" src="controller/Bacen.js"></script>
+  <script type="text/javascript" src="controller/ExchangeRate.js"></script>
+  <script type="text/javascript" src="controller/Business.js"></script>
 </head>
 <body>
-  <div id="menu">
-  <span><img src="img/logo.png" alt="BGJ Câmbio e Cotação" width="55px"></span>
-  <span >Data inicial</span>
-  <input id="data_inicial_cotacao" type="date" autofocus>
+  <section>
+    <span><img src="img/logo.png" alt="BGJ Câmbio e Cotação" width="55px"></span>
+    <span>Data inicial</span>
+    <input id="data_inicial_cotacao" type="date" autofocus>
 
-  <span>Data final</span>
-  <input id="data_final_cotacao" type="date">
+    <span>Data final</span>
+    <input id="data_final_cotacao" type="date">
 
-  <input list="moeda_nomes" name="browser" id="nome_moeda">
-  <datalist id="moeda_nomes">
-    <option value="EUR">Euro</option>
-    <option value="USD">Dólar Americano</option>
-    <option value="GBP">Libra Esterlina</option>
-  </datalist>
+    <div>
+      <input type="checkbox" value="EUR">EUR</input>
+      <input type="checkbox" value="USD">USD</input>
+      <input type="checkbox" value="GBP">GBP</input>
+    </div>
 
-  <button id="botao_cotacao"> Cotar</button>
-  <span id="menu_sobre">Sobre</span>
-  <span id="menu_ajuda">Ajuda</span>
-</div>
+    <button id="botao_cotacao"> Cotar</button>
+    <span id="menu_sobre">Sobre</span>
+    <span id="menu_ajuda">Ajuda</span>
+  <section>
 
   <div id="info"></div>
-  <div id="curve_chart" style="width: 900px; height: 500px"></div>
+  <div id="chart" style="width: 900px; height: 500px"></div>
   <div id="tabela"></div>
 
   <script>
-
-    // Pega o valor do input 
-    const getValueByTagId = id => document.getElementById(id).value;
-
-    // Converter o json para o formato que o gráfico do google aceita    
-    const convertToCharts = json => json.map(objeto => [objeto.dataHoraCotacao, objeto.cotacaoVenda])
-
-    const converterData = date => {
-      // converte um string de yyyy-mm-dd para mm-dd-yyyy
-      const [ano, mes, dia] = date.split("-")
-      return [mes, dia, ano].join("-")
-    }
-    
-    const initializeFetch = _ => {
-      // Fução principal  
-      const moeda = getValueByTagId("nome_moeda")
-      const data_final = getValueByTagId("data_final_cotacao")
-      const data_inicial = getValueByTagId("data_inicial_cotacao")
-      const data_final_convertida = converterData(data_final)
-      const data_inicial_convertida = converterData(data_inicial)
-      
-      const url = getUrl()
-        .replace("simbolo_moeda", moeda)
-        .replace("cotacao_final", data_final_convertida)
-        .replace("cotacao_inicial", data_inicial_convertida)
-
-      allHidden(); // limpando as divs
-      showData(); // mostrando tabela e grafico
-      
-      fetchExchangeRate(url)
-    }
-
-    const fetchExchangeRate = async url => {
-      // Busca os dados no endPoint, similiar ao XMLRequest
-      const response = await fetch(url)
-      const dados = await response.json()
-      const dadosFiltrados = convertToCharts(dados.value)
-      drawCharts(dadosFiltrados)
-      drawTable("tabela", dadosFiltrados)
-      
-
-    }
-
-    const drawCharts = (dados) => {
-
-      draw([["data", "cotacao"],...dados])
-    }
-
-    const drawTable = (tagId, dados) => {
-      const tabela = new Table();
-      tabela.setDadosAtBody(dados)
-      tabela.draw(tagId);
-    }
-
     // Funções para gerar conteudo em info
 
     function divAjuda() {
@@ -113,32 +57,64 @@
 
     // Funções de "ativação" das divs
 
-      function allHidden()
-    {
+      function allHidden(){
       document.getElementById("info").style.display = "none";
-      document.getElementById("curve_chart").style.visibility = "hidden";
+      document.getElementById("chart").style.visibility = "hidden";
       document.getElementById("tabela").style.visibility = "hidden";
     }
 
-    function showData()
-    {
-      document.getElementById("curve_chart").style.visibility = "visible";
+    function showData(){
+      document.getElementById("chart").style.visibility = "visible";
       document.getElementById("tabela").style.visibility = "visible";
     }
 
+    const initializeFetch = async _ => {
+      let moedas = []
+
+      const nodes = document.querySelectorAll('input:checked');
+
+      for (let el of nodes.values()) {
+        moedas.push(el.value)
+      } 
+      
+      // Fução principal  
+      //const moedas = ["EUR", "USD", "GBP"]
+
+      const divIdGrafico = 'chart'
+      const divIdTabela = 'tabela'
+      const divIdPeriodoInicial = 'data_inicial_cotacao'
+      const divIdPeriodoFinal = 'data_final_cotacao'
+     
+      const chartView = new Charts();
+      const tableView = new Table();
+      const exchangeRate = new ExchangeRate();
+      
+      const dependencies = {
+        divIdGrafico,
+        divIdTabela,
+        divIdPeriodoFinal,
+        divIdPeriodoInicial,
+        moedas,
+        chartView,
+        tableView,
+        exchangeRate,
+      }
+
+      allHidden(); // limpando as divs
+      showData(); // mostrando tabela e grafico
+      
+      Business.initialize(dependencies)
+    }
+    
     // Adiciona um evento, funcao que sera executada, ao clicar no botão. 
     const botao_cotacao = document.getElementById("botao_cotacao")
-    botao_cotacao.addEventListener("click", initializeFetch)
-
-    //Evento SOBRE e AJUDA
+    botao_cotacao.addEventListener("click", initializeFetch) 
 
     const evento_sobre = document.getElementById("menu_sobre")
     evento_sobre.addEventListener("click", divSobre)
 
     const evento_ajuda = document.getElementById("menu_ajuda")
     evento_ajuda.addEventListener("click", divAjuda)
-
- 
 
   </script>
 </body>
